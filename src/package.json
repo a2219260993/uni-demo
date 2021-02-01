@@ -2,7 +2,7 @@
     "uni-app": {
         "scripts": {
             "mp-dingtalk": { 
-                "title":"钉钉小程序", 
+                "title":"音乐播放器", 
                 "env": { 
                     "UNI_PLATFORM": "mp-alipay" 
                 },

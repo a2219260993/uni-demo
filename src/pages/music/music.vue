@@ -76,7 +76,7 @@ export default {
 			playList: [
 				{
 					id: 1,
-					src: 'https://img-cdn-qiniu.dcloud.net.cn/uniapp/audio/music.mp3',
+					src: 'http://mp3.jinmiao.cn/mp3file/huiben/19/quting9xu.mp3',
 					name: '致爱丽丝',
 					album: '睡前轻音乐大全',
 					status: 0

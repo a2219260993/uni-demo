@@ -1,4 +1,6 @@
-import { showToast } from '@/utils/tool'; // eslint-disable-line import/no-unresolved
+import {
+  showToast
+} from '@/utils/tool'; // eslint-disable-line import/no-unresolved
 
 function isCurrent(aurl) {
   const pages = uni.getCurrentPages(); // eslint-disable-line no-undef
