@@ -28,3 +28,7 @@ npm run build
 
 ### uView
 > See [uView](https://uviewui.com/components/intro.html).
+
+### 开始
+
+从GitHub上下载项目  然后推送到自己的GitHub
