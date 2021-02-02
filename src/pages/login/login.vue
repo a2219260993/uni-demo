@@ -5,7 +5,7 @@
 			<view class="title">
 				欢迎登录
 			</view>
-			<input v-model="loginName" class="u-border-bottom" type="number" placeholder="请输入账号" />
+			<u-input v-model="loginName" :type="type" class="input" placeholder="请输入账号" :border="border" input-align='center'/>
 			<view class="center">
 				<u-button class="custom-style" shape="square" size="mini" :ripple="true" @click="onLogin">点击即可登录</u-button>
 			</view>
@@ -20,7 +20,7 @@
 	export default {
 		data() {
 			return {
-				loginName: ''
+				loginName: '1'
 			};
 		},
 		methods: {
@@ -64,8 +64,8 @@
 				margin-bottom: 100rpx;
 			}
 
-			input {
-				text-align: center;
+			.input {
+				// text-align: center;
 				margin-bottom: 100rpx;
 				padding-bottom: 6rpx;
 			}
@@ -73,9 +73,11 @@
 			.center {
 				display: flex;
 				justify-content: center;
+				align-content: center;
 			}
 
 			.custom-style {
+				text-align: center;
 				color: #000000;
 				width: 300rpx;
 				height: 100rpx;

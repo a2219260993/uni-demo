@@ -1,0 +1,42 @@
+const data = [{
+  no: 1,
+  id: 407450223,
+  src: 'http://music.163.com/song/media/outer/url?id=407450223.mp3',
+  name: '爸爸妈妈',
+  boss: '李荣浩',
+  status: false,
+},
+{
+  no: 2,
+  id: 1407551413,
+  src: 'http://music.163.com/song/media/outer/url?id=1407551413.mp3',
+  name: '麻雀',
+  boss: '李荣浩',
+  status: true,
+},
+{
+  no: 3,
+  id: 1387581250,
+  src: 'http://music.163.com/song/media/outer/url?id=1387581250.mp3',
+  name: 'MOM',
+  boss: '蜡笔小心',
+  status: true,
+},
+{
+  no: 4,
+  id: 1449416890,
+  src: 'http://music.163.com/song/media/outer/url?id=1449416890.mp3',
+  name: '所以你睡了没',
+  boss: '沙一汀EL',
+  status: true,
+},
+{
+  no: 5,
+  id: 1358276770,
+  src: 'http://music.163.com/song/media/outer/url?id=1358276770.mp3',
+  name: '真没睡',
+  boss: '姜云升',
+  status: true,
+},
+];
+export default { data };

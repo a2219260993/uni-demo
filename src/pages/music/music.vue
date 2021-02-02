@@ -1,380 +1,268 @@
 <template>
-	<view class="root">
-		<view class="play-list-wrap">
-			<!-- 播放列表 -->
-			<checkbox-group class="list">
-				<view class="item" v-for="(item, index) in playList" :key="item.id">
-					<view @click="change_item(index)" class="story">
-						<!-- label -->
-						<!-- <checkbox value="0" /> -->
-						<view class="story-info">
-							<view class="title">{{ item.name }}</view>
-							<view class="album">{{ item.album }}</view>
-						</view>
-					</view>
-					<view class="controller">
-						<!-- 暂停 -->
-						<image v-if="!paused && index == playing" @click="pause" src="../../static/music/pause.png" mode="aspectFit"></image>
-						<image v-if="paused && index == playing" @click="pause" src="../../static/music/play.png" mode="aspectFit"></image>
-						<!-- 收藏 -->
-						<image @click="collecte(index, item.id)" v-if="item.status == 1" style="margin-left: 40upx;" src="../../static/music/collected.png" mode="aspectFit"></image>
-						<image @click="collecte(index, item.id)" v-else style="margin-left: 40upx;" src="../../static/music/collect.png" mode="aspectFit"></image>
-					</view>
-				</view>
-			</checkbox-group>
-		</view>
+  <view class="root">
+    <!-- 顶部标签 -->
+    <view class="top_top">
+      SKIN · FLUME
+    </view>
+    <!-- 头像区 -->
+    <view class="hand">
+      <view class="hand_icon">
+        <u-icon v-if='!playList[playing].status'
+                name="star"
+                color="#9baac2"
+                size="78"
+                @click=collecte(playing)></u-icon>
+        <u-icon v-else
+                name="star-fill"
+                color="#9baac2"
+                size="78"
+                @click=collecte(playing)></u-icon>
+      </view>
+      <u-image class="hand_img"
+               width="300rpx"
+               height="300rpx"
+               :src="img"
+               shape="circle"></u-image>
+      <view class="hand_icon">
+        <u-icon name="more-dot-fill"
+                color="#9baac2"
+                size="78"></u-icon>
+      </view>
+    </view>
+    <!-- 头像区 -->
 
-		<!-- 底部音频控制器 -->
-		<!-- 上方控制按钮  -->
-		<view class="audio-controller">
-			<view class="top">
-				<view class="title">{{ playList[playing].name }}</view>
-				<view class="controller-icon">
-					<image @click="last_song" src="../../static/music/last.png" mode="aspectFit"></image>
-					<image v-if="!paused" @click="pause" src="../../static/music/pause.png" mode="aspectFit"></image>
-					<image v-else @click="pause" src="../../static/music/play.png" mode="aspectFit"></image>
-					<image @click="next_song" src="../../static/music/next.png" mode="aspectFit"></image>
-					<!-- <image @click="go_history" src="../../static/img/play-history.png" mode="aspectFit"></image> -->
-				</view>
-			</view>
-			<!-- 下方进度条 -->
-			<view class="bottom">
-				<view class="progress-bar">
-					<slider
-						@touchstart="progress_touch_start"
-						@change="progress_touch_end"
-						blockSize="30"
-						blockBgColor="#9a999b"
-						bgColor="#f0edf1"
-						activeColor="#4fa7df"
-						:width="400"
-						height="6"
-						minDefault="0"
-						:maxDefault="progress_max"
-					></slider>
-				</view>
-				<view class="time">
-					<text>{{ now }} / {{ duration }}</text>
-					<image @click="loop" v-if="recycled" src="../../static/music/recycled.png" mode="aspectFits"></image>
-					<image @click="loop" v-else src="../../static/music/recycle.png" mode="aspectFits"></image>
-				</view>
-			</view>
-		</view>
-	</view>
+    <!-- 播放列表 -->
+    <view class="play-list-wrap">
+      <u-cell-group class='list'>
+        <u-cell-item :title="itme.name"
+                     :label="itme.boss"
+                     :arrow="false"
+                     v-for="(itme,index) of playList"
+                     :key=itme.id
+                     @click="change_item(index)">
+          <!-- 暂停 -->
+          <u-icon slot="right-icon"
+                  v-if="!paused&&index==playing"
+                  @click="log(itme.boss)"
+                  name="pause"
+                  color="#a1b0cd"
+                  size="58"></u-icon>
+          <!-- 播放 -->
+          <u-icon slot="right-icon"
+                  v-else
+                  @click="log(itme.boss)"
+                  name="play-right-fill"
+                  color="#a1b0cd"
+                  size="58"></u-icon>
+        </u-cell-item>
+      </u-cell-group>
+    </view>
+    <!-- 播放列表 -->
+
+    <!-- 底部音频控制器 -->
+    <!-- 上方控制按钮  -->
+  </view>
 </template>
 <script>
-import slider from '../../components/slider/slider.vue';
+import listData from '../../static/music.js'
+import { mapGetters, mapState } from 'vuex';
 var that = null;
-const innerAudioContext = uni.getBackgroundAudioManager();
+const innerAudioContext = uni.createInnerAudioContext();
 export default {
-	data() {
-		return {
-			id: '', //数据请求id
-			paused: false,
-			recycled: false,
-			playing: 0,
-			playList: [
-				{
-					id: 1,
-					src: 'http://mp3.jinmiao.cn/mp3file/huiben/19/quting9xu.mp3',
-					name: '致爱丽丝',
-					album: '睡前轻音乐大全',
-					status: 0
-				},
-				{
-					id: 2,
-					src: 'http://mp3.jinmiao.cn/mp3file/huiben/19/quting9xu.mp3',
-					name: '鼹鼠做裤子',
-					album: '童话故事大全',
-					status: 0
-				}
-			],
-			now: '00:00',
-			duration: '00:00',
-			progress_max: 0
-		};
-	},
-	watch: {
-		// 监听播放列表的变化
-		playing(val, odlVal) {
-			let userInfo = uni.getStorageSync('userInfo');
-			console.log('playing:', val);
-			console.log('odlVal:', odlVal);
-		}
-	},
-	onLoad(options) {
-		that = this;
-		innerAudioContext.autoplay = false;
-		innerAudioContext.onPlay(() => {
-			uni.hideLoading();
-		});
-		innerAudioContext.onWaiting(function() {
-			uni.showLoading({
-				title: '正在加载'
-			});
-		});
-		innerAudioContext.onCanplay(function() {
-			uni.hideLoading();
-		});
-		innerAudioContext.onPrev(() => {
-			that.last_song();
-		});
-		innerAudioContext.onNext(() => {
-			that.next_song();
-		});
-		innerAudioContext.onError(res => {
-			console.log(res.errMsg);
-			console.log(res.errCode);
-		});
-		innerAudioContext.onTimeUpdate(() => {
-			that.now = that.time_format(innerAudioContext.currentTime);
-			that.duration = that.time_format(innerAudioContext.duration);
-			that.progress_max = parseInt(100 * (innerAudioContext.currentTime / innerAudioContext.duration));
-			// 在此可做试听限制，比如试听15s
-			// if (parseInt(innerAudioContext.currentTime) > 15) {
-			// 	innerAudioContext.pause();
-			// 	innerAudioContext.destroy();
-			// 	// 自定义提示
-			// }
-			// console.log(that.time_format(innerAudioContext.currentTime))
-			// console.log(that.time_format(innerAudioContext.duration))
-		});
-		innerAudioContext.onSeeked(function() {
-			innerAudioContext.play();
-		});
-		innerAudioContext.onPause(function() {
-			that.paused = true;
-		});
-		innerAudioContext.onPlay(function() {
-			that.paused = false;
-		});
-		innerAudioContext.onEnded(() => {
-			console.log(':end');
-			if (!that.recycled && that.playing < that.playList.length - 1) {
-				that.playing++;
-				innerAudioContext.src = that.playList[that.playing].src;
-				innerAudioContext.title = that.playList[that.playing].name;
-			} else if (that.recycled) {
-				innerAudioContext.seek(0);
-				innerAudioContext.src = that.playList[that.playing].src;
-				innerAudioContext.title = that.playList[that.playing].name;
-			} else if (!that.recycled && that.playing == that.playList.length - 1) {
-				that.playing = 0;
-				innerAudioContext.src = that.playList[that.playing].src;
-				innerAudioContext.title = that.playList[that.playing].name;
-			}
-		});
-	},
-	onShow() {
-		innerAudioContext.src = that.playList[that.playing].src;
-		innerAudioContext.title = that.playList[that.playing].name;
-		// 保持屏幕常亮
-		uni.setKeepScreenOn({
-			keepScreenOn: true
-		});
-	},
-	onHide() {
-		console.log('hide:');
-	},
-	onUnload() {
-		console.log('onUnload pause innerAudioContext');
-	},
-	components: {
-		slider
-	},
-	methods: {
-		//播放器控制相关
-		last_song() {
-			if (that.playing != 0) {
-				that.playing--;
-				innerAudioContext.src = that.playList[that.playing].src;
-				innerAudioContext.title = that.playList[that.playing].name;
-			}
-		},
-		next_song() {
-			if (that.playing < that.playList.length - 1) {
-				that.playing++;
-				innerAudioContext.src = that.playList[that.playing].src;
-				innerAudioContext.title = that.playList[that.playing].name;
-			} else if (that.playing == that.playList.length - 1) {
-				that.playing = 0;
-				innerAudioContext.src = that.playList[that.playing].src;
-				innerAudioContext.title = that.playList[that.playing].name;
-				uni.pageScrollTo({
-					scrollTop: 0
-				});
-			}else{
-				console.log('do nothing ');
-			}
-		},
-		pause() {
-			if (innerAudioContext.paused) {
-				innerAudioContext.play();
-			} else {
-				innerAudioContext.pause();
-			}
-		},
-		loop() {
-			// innerAudioContext.loop = !innerAudioContext.loop //loop属性为true时不会触发 onEnded()
-			this.recycled = !that.recycled;
-			if (that.recycled) {
-				uni.showToast({
-					icon: 'none',
-					title: '开启循环'
-				});
-			}
-		},
-		go_history() {},
-		// 进度条相关
-		progress_touch_start() {
-			innerAudioContext.pause();
-		},
-		progress_touch_end(percent) {
-			console.log('num :>> ', percent.detail.__args__[0]);
-			let s = (percent.detail.__args__[0] / 100) * innerAudioContext.duration;
-			innerAudioContext.seek(parseInt(s));
-		},
-		// 业务逻辑
-		change_item(index) {
-			that.playing = index;
-			innerAudioContext.src = that.playList[that.playing].src;
-			innerAudioContext.title = that.playList[that.playing].name;
-		},
-		// 点赞
-		collecte(index, id) {
-			that.playList[index].status == 0 ? (that.playList[index].status = 1) : (that.playList[index].status = 0);
-		},
-		time_format(second) {
-			let m = Math.floor((second / 60) % 60) < 10 ? '0' + Math.floor((second / 60) % 60) : Math.floor((second / 60) % 60);
-			let s = Math.floor(second % 60) < 10 ? '0' + Math.floor(second % 60) : Math.floor(second % 60);
-			return `${m}:${s}`;
-		}
-	}
+  data () {
+    return {
+      img: "http://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885805.jpg",
+      id: '', //数据请求id
+      paused: true,
+      //是否循环
+      recycled: false,
+      playing: 1,
+      now: '00:00',
+      duration: '00:00',
+      progress_max: 0
+    };
+  },
+  computed: {
+    ...mapGetters(['playList'])
+  },
+  onLoad (options) {
+    that = this;
+    innerAudioContext.autoplay = false;
+    innerAudioContext.onTimeUpdate(() => {
+      that.now = that.time_format(innerAudioContext.currentTime);
+      that.duration = that.time_format(innerAudioContext.duration);
+      that.progress_max = parseInt(100 * (innerAudioContext.currentTime / innerAudioContext.duration));
+    });
+    innerAudioContext.onSeeked(function () {
+      innerAudioContext.play();
+    });
+    innerAudioContext.onPause(function () {
+      console.log("onPause被调用了")
+      that.paused = true;
+    });
+    innerAudioContext.onPlay(function () {
+      console.log("onPlay被调用了")
+      that.paused = false;
+    });
+    //当前音乐播放完毕  播放下一首或者第一首
+    innerAudioContext.onEnded(() => {
+      if (!that.recycled && that.playing < that.playList.length - 1) {
+        that.playing++;
+        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.title = that.playList[that.playing].name;
+      } else if (that.recycled) {
+        innerAudioContext.seek(0);
+        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.title = that.playList[that.playing].name;
+      } else if (!that.recycled && that.playing == that.playList.length - 1) {
+        that.playing = 0;
+        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.title = that.playList[that.playing].name;
+      }
+    });
+  },
+  onShow () {
+    innerAudioContext.src = that.playList[that.playing].src;
+    innerAudioContext.title = that.playList[that.playing].name;
+    // 保持屏幕常亮
+    uni.setKeepScreenOn({
+      keepScreenOn: true
+    });
+  },
+  methods: {
+    //播放器控制相关
+    last_song () {
+      if (that.playing != 0) {
+        that.playing--;
+        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.title = that.playList[that.playing].name;
+        innerAudioContext.play()
+      }
+    },
+    next_song () {
+      if (that.playing < that.playList.length - 1) {
+        that.playing++;
+        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.title = that.playList[that.playing].name;
+        innerAudioContext.play()
+      } else if (that.playing == that.playList.length - 1) {
+        that.playing = 0;
+        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.title = that.playList[that.playing].name;
+        uni.pageScrollTo({
+          scrollTop: 0
+        });
+      } else {
+        console.log('do nothing ');
+      }
+    },
+    //判断当前音乐播放状态 然后调用相应的方法
+    pause () {
+
+      if (this.paused) {
+        innerAudioContext.play();
+        console.log("play被调用了")
+      } else {
+        innerAudioContext.pause();
+        console.log("pause被调用了")
+      }
+
+    },
+    //循环相关
+    loop () {
+      // innerAudioContext.loop = !innerAudioContext.loop //loop属性为true时不会触发 onEnded()
+      this.recycled = !that.recycled;
+      if (that.recycled) {
+        //弹出
+        uni.showToast({
+          icon: 'none',
+          title: '开启循环'
+        });
+      } else {
+        uni.showToast({
+          icon: 'none',
+          title: '关闭循环'
+        })
+      }
+    },
+    // 进度条相关
+    progress_touch_start () {
+      innerAudioContext.pause();
+    },
+    progress_touch_end (percent) {
+      console.log('num :>> ', percent.detail.__args__[0]);
+      let s = (percent.detail.__args__[0] / 100) * innerAudioContext.duration;
+      //转换为十进制数
+      innerAudioContext.seek(parseInt(s));
+    },
+    // 业务逻辑
+    change_item (index) {
+      // 当前点击的不是正在播放的
+      if (that.playing != index) {
+        innerAudioContext.src = that.playList[index].src;
+        innerAudioContext.title = that.playList[index].name;
+        this.paused = true;
+        that.pause()
+        that.playing = index;
+        return
+      } else {
+        that.pause()
+      }
+
+
+    },
+    // 点赞
+    collecte (index) {
+      that.playList[index].status = !that.playList[index].status;
+    },
+    time_format (second) {
+      let m = Math.floor((second / 60) % 60) < 10 ? '0' + Math.floor((second / 60) % 60) : Math.floor((second / 60) % 60);
+      let s = Math.floor(second % 60) < 10 ? '0' + Math.floor(second % 60) : Math.floor(second % 60);
+      return `${m}:${s}`;
+    }
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 .root {
-	width: 100%;
-}
+  height: 100vh;
+  width: 100%;
+  background: rgb(221, 232, 250);
 
-.play-list-wrap {
-	margin-bottom: 300upx;
-}
+  .top_top {
+    text-align: center;
+    margin: 50rpx 0 50rpx 0;
+    font-size: 10rpx;
+  }
 
-.list {
-	width: 100%;
+  .hand {
+    display: flex;
+    justify-content: center;
 
-	.item {
-		width: 96%;
-		padding: 25upx 3%;
-		display: flex;
-		justify-content: space-between;
-		border-bottom: 2upx solid #f0edf1;
+    .hand_icon {
+      height: 50px;
+      width: 50px;
+      align-self: center;
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      margin: 0 auto;
+      border-radius: 50%;
+    }
 
-		.all {
-			font-size: 28upx;
+    .hand_img {
+      margin: 0 auto;
+    }
+  }
 
-			text {
-				display: inline-block;
-				margin-left: 15upx;
-				font-size: 32upx;
-				padding-top: 5upx;
-			}
-		}
+  .play-list-wrap {
+    margin-top: 50rpx;
 
-		.delete {
-			background: rgba(245, 49, 49, 1);
-			border-radius: 8upx;
-			padding: 5upx 15upx;
-			color: #ffffff;
-			font-size: 26upx;
-		}
-
-		.story {
-			display: flex;
-			width: 80%;
-			checkbox {
-				margin-top: 15upx;
-			}
-
-			.story-info {
-				margin-left: 15upx;
-
-				.title {
-					font-size: 28upx;
-				}
-
-				.album {
-					font-size: 24upx;
-					margin-top: 5upx;
-				}
-			}
-		}
-
-		.controller {
-			margin-top: 25upx;
-
-			image {
-				display: inline-block;
-				width: 32upx;
-				height: 32upx;
-				margin-right: 20upx;
-			}
-		}
-	}
-}
-
-.audio-controller {
-	position: fixed;
-	z-index: 999;
-	width: 100%;
-	background: #ffffff;
-	bottom: 0upx;
-
-	.top {
-		display: flex;
-		justify-content: space-between;
-
-		.title {
-			width: 57%;
-			margin-left: 3%;
-			font-size: 30upx;
-		}
-
-		.controller-icon {
-			display: flex;
-			justify-content: space-around;
-			width: 40%;
-
-			image {
-				display: inline-block;
-				height: 30upx;
-				width: 30upx;
-			}
-		}
-	}
-
-	.bottom {
-		width: 100%;
-		display: flex;
-		justify-content: space-between;
-
-		.time {
-			margin-top: 26upx;
-			margin-right: 20upx;
-			color: #808080;
-			font-size: 28upx;
-			display: flex;
-
-			image {
-				display: block;
-				width: 30upx;
-				height: 30upx;
-				margin-left: 30upx;
-				margin-top: 5upx;
-			}
-		}
-	}
+    //深度选择器
+    .list ::v-deep .u-cell-item-box {
+      background-color: #dde8fa;
+    }
+  }
 }
 </style>
