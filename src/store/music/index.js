@@ -1,11 +1,6 @@
 import listData from '../../static/music.js'
 export default {
   state: {
-    data: listData.data,
+    list: listData.data,
   },
-  getters: {
-    playList: state => {
-      return state.data
-    }
-  }
 }

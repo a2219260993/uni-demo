@@ -65,7 +65,7 @@
 </template>
 <script>
 import listData from '../../static/music.js'
-import { mapGetters, mapState } from 'vuex';
+import { mapState } from 'vuex';
 var that = null;
 const innerAudioContext = uni.createInnerAudioContext();
 export default {
@@ -83,7 +83,10 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['playList'])
+    ...mapState({
+      playList: state => state.Music.list
+      // 变量名：state=>state.模块名.对应变量
+    })
   },
   onLoad (options) {
     that = this;
