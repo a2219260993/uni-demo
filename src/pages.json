@@ -1,46 +1,48 @@
 {
-	"pages": [
-		// pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-			"path": "pages/login/login",
-			"style": {
-				// 自定义导航样式
-				"navigationStyle": "custom"
-			}
-		},
-		{
-			"path": "pages/music/music",
-			"style": {
-				"navigationStyle": "custom"
-			}
-		}, {
-			"path": "pages/web-view/web-view",
-			"style": {
-				"navigationStyle": "custom"
-			}
-		}
-	],
-	"easycom": {
+  "pages": [
+    // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+    {
+      "path": "pages/login/login",
+      "style": {
+        // 自定义导航样式
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/music/music",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/web-view/web-view",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  // 传统vue组件，需要安装、引用、注册，三个步骤后才能使用组件。easycom将其精简为一步。 只要组件安装在项目的components目录下，并符合components/组件名称/组件名称.vue目录结构。就可以不用引用、注册，直接在页面中使用。 
+  "easycom": {
     "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
   },
-	"globalStyle": {
-		"pageOrientation": "portrait",
-		// 
-		"navigationBarTitleText": "Hello uniapp",
-		"navigationBarTextStyle": "white",
-		"navigationBarBackgroundColor": "#f5f5f5",
-		"backgroundColor": "#f5f5f5",
-		"backgroundColorTop": "#f5f5f5",
-		"backgroundColorBottom": "#F4F5F6",
-		//配置到360的特定样式
-		"mp-360": {
-			"navigationStyle": "custom"
-		},
-		//配置到h5的特定样式
-		"h5": {
-			"maxWidth": 1190,
-			"navigationBarTextStyle": "black",
-			"navigationBarBackgroundColor": "#F1F1F1"
-		}
-	}
+  "globalStyle": {
+    "pageOrientation": "portrait",
+    //  
+    "navigationBarTitleText": "Hello uniapp",
+    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#f5f5f5",
+    "backgroundColor": "#f5f5f5",
+    "backgroundColorTop": "#f5f5f5",
+    "backgroundColorBottom": "#F4F5F6",
+    // 配置到360的特定样式
+    "mp-360": {
+      "navigationStyle": "custom"
+    },
+    //配置到h5的特定样式
+    "h5": {
+      "maxWidth": 1190,
+      "navigationBarTextStyle": "black",
+      "navigationBarBackgroundColor": "#F1F1F1"
+    }
+  }
 }

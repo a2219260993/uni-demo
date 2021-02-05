@@ -10,7 +10,7 @@
         <u-icon v-if='!playList[playing].status'
                 name="star"
                 color="#9baac2"
-                size="78"
+                size= "78"
                 @click=collecte(playing)></u-icon>
         <u-icon v-else
                 name="star-fill"
@@ -18,7 +18,7 @@
                 size="78"
                 @click=collecte(playing)></u-icon>
       </view>
-      <u-image class="hand_img"
+      <u-image :class="!paused?'hand_img ani':'hand_img'"
                width="300rpx"
                height="300rpx"
                :src="img"
@@ -46,18 +46,20 @@
                   @click="log(itme.boss)"
                   name="pause"
                   color="#a1b0cd"
-                  size="58"></u-icon>
+                  size="58"
+				  class='player'></u-icon>
           <!-- 播放 -->
           <u-icon slot="right-icon"
                   v-else
                   @click="log(itme.boss)"
                   name="play-right-fill"
                   color="#a1b0cd"
-                  size="58"></u-icon>
+                  size="58"
+				  class='player'></u-icon>
         </u-cell-item>
+		
       </u-cell-group>
     </view>
-    <!-- 播放列表 -->
 
     <!-- 底部音频控制器 -->
     <!-- 上方控制按钮  -->
@@ -71,23 +73,25 @@ const innerAudioContext = uni.createInnerAudioContext();
 export default {
   data () {
     return {
-      img: "http://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885805.jpg",
-      id: '', //数据请求id
-      paused: true,
-      //是否循环
-      recycled: false,
-      playing: 1,
-      now: '00:00',
-      duration: '00:00',
-      progress_max: 0
+
     };
   },
   computed: {
     ...mapState({
-      playList: state => state.Music.list
+      playList: state => state.Music.list,
       // 变量名：state=>state.模块名.对应变量
+	  img: state => state.Music.img,
+	  id: state => state.Music.id, //数据请求id
+	  paused: state => state.Music.paused,
+	  //是否循环
+	  recycled: state => state.Music.recycled,
+	  playing: state => state.Music.playing,
+	  now: state => state.Music.now,
+	  duration:state => state.Music.duration,
+	  progress_max: state => state.Music.progress_max
     })
   },
+  //转跳传值  小程序的   onLoad监听页面加载
   onLoad (options) {
     that = this;
     innerAudioContext.autoplay = false;
@@ -252,20 +256,65 @@ export default {
       justify-content: center;
       margin: 0 auto;
       border-radius: 50%;
+	  //凸起小图标
+	  // box-shadow: -10px -10px 15px 5px rgba(255,255,255,0.5),10px 10px 15px 5px rgba(70,70,70,0.12);
+	  box-shadow: -5px -5px 15px 5px rgba(255, 255, 255, 0.7),
+	  5px 5px 15px 5px rgba(0,0,0,0.12),
+	  // inset -10px -10px 15px 5px rgba(70,70,70,0.12),
+	  inset 0px 0px 10px 2px rgba(255,255,255,.75);
+	  // inset 0px 0px 10px 2px #000000;
+	  border:2px solid #dde8fa;
     }
+
 
     .hand_img {
       margin: 0 auto;
+	  border-radius: 50%;
+	  //凸起小图标
+	  // box-shadow: -10px -10px 15px 5px rgba(255,255,255,0.5),10px 10px 15px 5px rgba(70,70,70,0.12);
+	  box-shadow: -5px -5px 15px 5px rgba(255, 255, 255, 0.7),
+	  5px 5px 15px 5px rgba(0,0,0,0.12),
+	  // inset -10px -10px 15px 5px rgba(70,70,70,0.12),
+	  inset 0px 0px 10px 2px rgba(255,255,255,.75);
+	  // inset 0px 0px 10px 2px #000000;
+	  border:2px solid #dde8fa;
+	  
     }
+	.ani{
+		//头像旋转
+		animation: rotation 5s linear infinite;
+		}
+		
   }
-
   .play-list-wrap {
     margin-top: 50rpx;
-
+	.player{
+		padding: 5px;
+		// background-color: red;
+		border-radius: 50%;
+		//凸起小图标
+		// box-shadow: -10px -10px 15px 5px rgba(255,255,255,0.5),10px 10px 15px 5px rgba(70,70,70,0.12);
+	  box-shadow: -5px -5px 15px 5px rgba(255, 255, 255, 0.7),
+	  5px 5px 15px 5px rgba(0,0,0,0.12),
+	  // inset -10px -10px 15px 5px rgba(70,70,70,0.12),
+	  inset 0px 0px 10px 2px rgba(255,255,255,.75);
+	  // inset 0px 0px 10px 2px #000000;
+	  border:2px solid #dde8fa;
+		
+	}
     //深度选择器
     .list ::v-deep .u-cell-item-box {
       background-color: #dde8fa;
     }
   }
+  @keyframes rotation{
+    from {
+          transform: rotate(0deg);
+      }
+      to {
+          transform: rotate(360deg);
+      }
+  }
+
 }
 </style>
