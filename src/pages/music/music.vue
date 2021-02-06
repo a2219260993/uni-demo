@@ -96,25 +96,25 @@ export default {
     that = this;
     innerAudioContext.autoplay = false;
     innerAudioContext.onTimeUpdate(() => {
-      that.now = that.time_format(innerAudioContext.currentTime);
-      that.duration = that.time_format(innerAudioContext.duration);
-      that.progress_max = parseInt(100 * (innerAudioContext.currentTime / innerAudioContext.duration));
+      this.$store.commit("changenow",that.time_format(innerAudioContext.currentTime))
+      this.$store.commit("changeduration",that.time_format(innerAudioContext.duration))
+      this.$store.commit("changeprogress",parseInt(100 * (innerAudioContext.currentTime / innerAudioContext.duration)))
     });
     innerAudioContext.onSeeked(function () {
       innerAudioContext.play();
     });
-    innerAudioContext.onPause(function () {
+    innerAudioContext.onPause(()=>{
       console.log("onPause被调用了")
-      that.paused = true;
+	   this.$store.commit("changepaused",true)
     });
-    innerAudioContext.onPlay(function () {
+    innerAudioContext.onPlay(()=> {
       console.log("onPlay被调用了")
-      that.paused = false;
+	  this.$store.commit("changepaused",false)
     });
     //当前音乐播放完毕  播放下一首或者第一首
     innerAudioContext.onEnded(() => {
       if (!that.recycled && that.playing < that.playList.length - 1) {
-        that.playing++;
+        this.$store.commit("changeplaying", 1)
         innerAudioContext.src = that.playList[that.playing].src;
         innerAudioContext.title = that.playList[that.playing].name;
       } else if (that.recycled) {
@@ -122,7 +122,7 @@ export default {
         innerAudioContext.src = that.playList[that.playing].src;
         innerAudioContext.title = that.playList[that.playing].name;
       } else if (!that.recycled && that.playing == that.playList.length - 1) {
-        that.playing = 0;
+        this.$store.commit("changeplaying", -that.playing)
         innerAudioContext.src = that.playList[that.playing].src;
         innerAudioContext.title = that.playList[that.playing].name;
       }
@@ -140,7 +140,7 @@ export default {
     //播放器控制相关
     last_song () {
       if (that.playing != 0) {
-        that.playing--;
+        this.$store.commit("changeplaying",-1)
         innerAudioContext.src = that.playList[that.playing].src;
         innerAudioContext.title = that.playList[that.playing].name;
         innerAudioContext.play()
@@ -148,12 +148,12 @@ export default {
     },
     next_song () {
       if (that.playing < that.playList.length - 1) {
-        that.playing++;
+        this.$store.commit("changeplaying", 1);
         innerAudioContext.src = that.playList[that.playing].src;
         innerAudioContext.title = that.playList[that.playing].name;
         innerAudioContext.play()
       } else if (that.playing == that.playList.length - 1) {
-        that.playing = 0;
+        this.$store.commit("changeplaying", -that.playing)
         innerAudioContext.src = that.playList[that.playing].src;
         innerAudioContext.title = that.playList[that.playing].name;
         uni.pageScrollTo({
@@ -165,7 +165,6 @@ export default {
     },
     //判断当前音乐播放状态 然后调用相应的方法
     pause () {
-
       if (this.paused) {
         innerAudioContext.play();
         console.log("play被调用了")
@@ -173,7 +172,6 @@ export default {
         innerAudioContext.pause();
         console.log("pause被调用了")
       }
-
     },
     //循环相关
     loop () {
@@ -208,19 +206,21 @@ export default {
       if (that.playing != index) {
         innerAudioContext.src = that.playList[index].src;
         innerAudioContext.title = that.playList[index].name;
-        this.paused = true;
+		this.$store.commit("changepaused",true)
+        // this.paused = true;
         that.pause()
-        that.playing = index;
+        // that.playing = index;
+		console.log("index-that.playing===",index-that.playing)
+		this.$store.commit("changeplaying", index-that.playing)
         return
       } else {
+		 console.log("我想知道我被调用了没",index-that.playing)
         that.pause()
       }
-
-
     },
     // 点赞
     collecte (index) {
-      that.playList[index].status = !that.playList[index].status;
+      this.$store.commit('changestatu',index);
     },
     time_format (second) {
       let m = Math.floor((second / 60) % 60) < 10 ? '0' + Math.floor((second / 60) % 60) : Math.floor((second / 60) % 60);
