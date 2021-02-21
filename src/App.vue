@@ -37,7 +37,7 @@ export default {
 
   uni-page-body {
     background-color: #F5F5F5 !important;
-    min-height: 100% !important;
+    // min-height: 100% !important;
     height: auto !important;
   }
 
@@ -49,11 +49,14 @@ export default {
     display: none !important;
   }
   /* #endif */
-
+body,html{
+	height: auto;
+	background-color: #ececec;
+}
   /* 以下样式用于 hello uni-app 演示所需 */
   page {
     background-color: #efeff4;
-    height: 100%;
+    // height: 100%;
     font-size: 28rpx;
     line-height: 1.8;
   }

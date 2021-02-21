@@ -43,7 +43,6 @@
           <!-- 暂停 -->
           <u-icon slot="right-icon"
                   v-if="!paused&&index==playing"
-                  @click="log(itme.boss)"
                   name="pause"
                   color="#a1b0cd"
                   size="58"
@@ -51,7 +50,6 @@
           <!-- 播放 -->
           <u-icon slot="right-icon"
                   v-else
-                  @click="log(itme.boss)"
                   name="play-right-fill"
                   color="#a1b0cd"
                   size="58"
@@ -62,6 +60,10 @@
     </view>
 
     <!-- 底部音频控制器 -->
+		<view class="wrap">
+			<u-slider v-model="progress" @start="progress_touch_start"
+			@end="progress_touch_end(progress)"></u-slider>
+		</view>
     <!-- 上方控制按钮  -->
   </view>
 </template>
@@ -87,9 +89,21 @@ export default {
 	  recycled: state => state.Music.recycled,
 	  playing: state => state.Music.playing,
 	  now: state => state.Music.now,
+	  //当前音频
 	  duration:state => state.Music.duration,
-	  progress_max: state => state.Music.progress_max
-    })
+	  //音频最大长度
+	  // progress_max: state => state.Music.progress_max,
+	  //这是当前播放
+    }),
+	//当前播放的百分比值  要利用set去双向绑定上传
+	progress:{
+		get(){
+			return this.$store.state.Music.progress_max
+		},
+		set(v){
+			this.$store.commit("changeprogress",v)
+			}
+	}
   },
   //转跳传值  小程序的   onLoad监听页面加载
   onLoad (options) {
@@ -192,14 +206,20 @@ export default {
     },
     // 进度条相关
     progress_touch_start () {
+		// console.log("我开始滑动了")
       innerAudioContext.pause();
     },
     progress_touch_end (percent) {
-      console.log('num :>> ', percent.detail.__args__[0]);
-      let s = (percent.detail.__args__[0] / 100) * innerAudioContext.duration;
+	 // console.log("我结束滑动了"+percent)
+      let s = (percent/ 100) * innerAudioContext.duration;
       //转换为十进制数
       innerAudioContext.seek(parseInt(s));
     },
+	time_format (second) {
+	  let m = Math.floor((second / 60) % 60) < 10 ? '0' + Math.floor((second / 60) % 60) : Math.floor((second / 60) % 60);
+	  let s = Math.floor(second % 60) < 10 ? '0' + Math.floor(second % 60) : Math.floor(second % 60);
+	  return `${m}:${s}`;
+	},
     // 业务逻辑
     change_item (index) {
       // 当前点击的不是正在播放的
@@ -224,31 +244,34 @@ export default {
     collecte (index) {
       this.$store.commit('changestatu',index);
     },
-    time_format (second) {
-      let m = Math.floor((second / 60) % 60) < 10 ? '0' + Math.floor((second / 60) % 60) : Math.floor((second / 60) % 60);
-      let s = Math.floor(second % 60) < 10 ? '0' + Math.floor(second % 60) : Math.floor(second % 60);
-      return `${m}:${s}`;
-    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
 .root {
-  height: 100vh;
-  width: 100%;
   background: rgb(236, 236, 236);
-
   .top_top {
     text-align: center;
-    margin: 50rpx 0 50rpx 0;
+	width: 750rpx;
+    height: 100rpx;
+	line-height: 75rpx;
     font-size: 10rpx;
+	position:fixed ;
+	top: 0rpx;
+	z-index: 999;
+	background-color: #ececec;
   }
 
   .hand {
     display: flex;
     justify-content: center;
-
+	height: 375rpx;
+	width: 750rpx;
+	position:fixed ;
+	top: 100rpx;
+	z-index: 999;
+	background-color: #ececec;
     .hand_icon {
       height: 50px;
       width: 50px;
@@ -284,7 +307,8 @@ export default {
 		
   }
   .play-list-wrap {
-    margin-top: 50rpx;
+    margin-top: 475rpx;
+	// z-index: -1;
 	.player{
 		padding: 5px;
 		// background-color: red;
@@ -309,6 +333,13 @@ export default {
           transform: rotate(360deg);
       }
   }
-
+.wrap{
+	background-color: pink;
+	padding: 20rpx ;
+	width: 750rpx;
+	height: 150rpx;
+	position: fixed;
+    bottom: 0;
+}
 }
 </style>
