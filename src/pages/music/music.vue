@@ -21,7 +21,7 @@
       <u-image :class="!paused?'hand_img ani':'hand_img'"
                width="300rpx"
                height="300rpx"
-               :src="img"
+               :src="playList[this.playing].img"
                shape="circle"></u-image>
       <view class="hand_icon">
         <u-icon name="more-dot-fill"
@@ -112,24 +112,24 @@ export default {
 	  this.$store.commit("changepaused",false)
     });
     //当前音乐播放完毕  播放下一首或者第一首
-    innerAudioContext.onEnded(() => {
+    innerAudioContext.onEnded(() => { 
       if (!that.recycled && that.playing < that.playList.length - 1) {
         this.$store.commit("changeplaying", 1)
-        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
         innerAudioContext.title = that.playList[that.playing].name;
       } else if (that.recycled) {
         innerAudioContext.seek(0);
-        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
         innerAudioContext.title = that.playList[that.playing].name;
       } else if (!that.recycled && that.playing == that.playList.length - 1) {
         this.$store.commit("changeplaying", -that.playing)
-        innerAudioContext.src = that.playList[that.playing].src;
-        innerAudioContext.title = that.playList[that.playing].name;
+        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
+        innerAudioContext.title = that.playList[that .playing].name;
       }
     });
   },
   onShow () {
-    innerAudioContext.src = that.playList[that.playing].src;
+    innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
     innerAudioContext.title = that.playList[that.playing].name;
     // 保持屏幕常亮
     uni.setKeepScreenOn({
@@ -141,7 +141,7 @@ export default {
     last_song () {
       if (that.playing != 0) {
         this.$store.commit("changeplaying",-1)
-        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
         innerAudioContext.title = that.playList[that.playing].name;
         innerAudioContext.play()
       }
@@ -149,12 +149,12 @@ export default {
     next_song () {
       if (that.playing < that.playList.length - 1) {
         this.$store.commit("changeplaying", 1);
-        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
         innerAudioContext.title = that.playList[that.playing].name;
         innerAudioContext.play()
       } else if (that.playing == that.playList.length - 1) {
         this.$store.commit("changeplaying", -that.playing)
-        innerAudioContext.src = that.playList[that.playing].src;
+        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
         innerAudioContext.title = that.playList[that.playing].name;
         uni.pageScrollTo({
           scrollTop: 0
@@ -203,8 +203,9 @@ export default {
     // 业务逻辑
     change_item (index) {
       // 当前点击的不是正在播放的
+	  // console.log("传入了一个"+`http://music.163.com/song/media/outer/url?id=${that.playList[index].id}.mp3`)
       if (that.playing != index) {
-        innerAudioContext.src = that.playList[index].src;
+        innerAudioContext.src = `http://music.163.com/song/media/outer/url?id=${that.playList[index].id}.mp3`;
         innerAudioContext.title = that.playList[index].name;
 		this.$store.commit("changepaused",true)
         // this.paused = true;
@@ -214,7 +215,8 @@ export default {
 		this.$store.commit("changeplaying", index-that.playing)
         return
       } else {
-		 console.log("我想知道我被调用了没",index-that.playing)
+		console.log("我想知道我被调用了没",index-that.playing)
+		this.$store.commit("changeplaying", index-that.playing)
         that.pause()
       }
     },
@@ -235,7 +237,7 @@ export default {
 .root {
   height: 100vh;
   width: 100%;
-  background: rgb(221, 232, 250);
+  background: rgb(236, 236, 236);
 
   .top_top {
     text-align: center;
@@ -257,13 +259,10 @@ export default {
       margin: 0 auto;
       border-radius: 50%;
 	  //凸起小图标
-	  // box-shadow: -10px -10px 15px 5px rgba(255,255,255,0.5),10px 10px 15px 5px rgba(70,70,70,0.12);
-	  box-shadow: -5px -5px 15px 5px rgba(255, 255, 255, 0.7),
-	  5px 5px 15px 5px rgba(0,0,0,0.12),
-	  // inset -10px -10px 15px 5px rgba(70,70,70,0.12),
-	  inset 0px 0px 10px 2px rgba(255,255,255,.75);
-	  // inset 0px 0px 10px 2px #000000;
-	  border:2px solid #dde8fa;
+	  box-shadow: -10px -10px 15px rgba(255, 255, 255, 0.5),
+	  10px 10px 15px rgba(70,70,70,0.12);
+
+	  border:8px solid #ececec;
     }
 
 
@@ -272,12 +271,10 @@ export default {
 	  border-radius: 50%;
 	  //凸起小图标
 	  // box-shadow: -10px -10px 15px 5px rgba(255,255,255,0.5),10px 10px 15px 5px rgba(70,70,70,0.12);
-	  box-shadow: -5px -5px 15px 5px rgba(255, 255, 255, 0.7),
-	  5px 5px 15px 5px rgba(0,0,0,0.12),
-	  // inset -10px -10px 15px 5px rgba(70,70,70,0.12),
-	  inset 0px 0px 10px 2px rgba(255,255,255,.75);
-	  // inset 0px 0px 10px 2px #000000;
-	  border:2px solid #dde8fa;
+	  box-shadow: -10px -10px 15px rgba(255, 255, 255, 0.5),
+	  10px 10px 15px rgba(70,70,70,0.12);
+
+	  border:8px solid #ececec;
 	  
     }
 	.ani{
@@ -294,17 +291,14 @@ export default {
 		border-radius: 50%;
 		//凸起小图标
 		// box-shadow: -10px -10px 15px 5px rgba(255,255,255,0.5),10px 10px 15px 5px rgba(70,70,70,0.12);
-	  box-shadow: -5px -5px 15px 5px rgba(255, 255, 255, 0.7),
-	  5px 5px 15px 5px rgba(0,0,0,0.12),
-	  // inset -10px -10px 15px 5px rgba(70,70,70,0.12),
-	  inset 0px 0px 10px 2px rgba(255,255,255,.75);
-	  // inset 0px 0px 10px 2px #000000;
-	  border:2px solid #dde8fa;
+	  box-shadow: -10px -10px 15px rgba(255, 255, 255, 0.5),
+	  10px 10px 15px rgba(70,70,70,0.12);
+	  border:px solid #ececec;
 		
 	}
     //深度选择器
     .list ::v-deep .u-cell-item-box {
-      background-color: #dde8fa;
+      background-color: #ececec;
     }
   }
   @keyframes rotation{
