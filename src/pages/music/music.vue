@@ -127,19 +127,8 @@ export default {
     });
     //当前音乐播放完毕  播放下一首或者第一首
     innerAudioContext.onEnded(() => { 
-      if (!that.recycled && that.playing < that.playList.length - 1) {
-        this.$store.commit("changeplaying", 1)
-        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
-        innerAudioContext.title = that.playList[that.playing].name;
-      } else if (that.recycled) {
-        innerAudioContext.seek(0);
-        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
-        innerAudioContext.title = that.playList[that.playing].name;
-      } else if (!that.recycled && that.playing == that.playList.length - 1) {
-        this.$store.commit("changeplaying", -that.playing)
-        innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
-        innerAudioContext.title = that.playList[that .playing].name;
-      }
+		// console.log("当前播放结束辣~！")
+		this.next_song()
     });
   },
   onShow () {
@@ -167,9 +156,11 @@ export default {
         innerAudioContext.title = that.playList[that.playing].name;
         innerAudioContext.play()
       } else if (that.playing == that.playList.length - 1) {
+		  // console.log('我在这里被调用了吗')
         this.$store.commit("changeplaying", -that.playing)
         innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
         innerAudioContext.title = that.playList[that.playing].name;
+		innerAudioContext.play()
         uni.pageScrollTo({
           scrollTop: 0
         });
