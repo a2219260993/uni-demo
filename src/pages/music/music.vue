@@ -39,6 +39,7 @@
                      :arrow="false"
                      v-for="(itme,index) of playList"
                      :key=itme.id
+					 :class="[index==playing?'color':'']"
                      @click="change_item(index)">
           <!-- 暂停 -->
           <u-icon slot="right-icon"
@@ -75,7 +76,7 @@ const innerAudioContext = uni.createInnerAudioContext();
 export default {
   data () {
     return {
-
+	color:'color'
     };
   },
   computed: {
@@ -131,7 +132,8 @@ export default {
 		this.next_song()
     });
   },
-  onShow () {
+  onShow () 
+ {
     innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
     innerAudioContext.title = that.playList[that.playing].name;
     // 保持屏幕常亮
@@ -241,6 +243,7 @@ export default {
 
 <style lang="scss" scoped>
 .root {
+	
   background: rgb(236, 236, 236);
   .top_top {
     text-align: center;
@@ -314,6 +317,10 @@ export default {
     //深度选择器
     .list ::v-deep .u-cell-item-box {
       background-color: #ececec;
+	  //这里是点击后的样式 暂时不需要
+	  .color{
+	  	// color: red;
+	  }
     }
   }
   @keyframes rotation{
