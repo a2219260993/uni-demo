@@ -14,13 +14,15 @@
         "navigationStyle": "custom"
       }
     },
-    {
-      "path": "pages/web-view/web-view",
-      "style": {
-        "navigationStyle": "custom"
-      }
-    }
-  ],
+	{
+            "path" : "pages/musicapp/musicapp",
+            "style" :                                                                                    
+            {
+				"navigationStyle": "custom"
+            }
+            
+        }
+    ],
   // 传统vue组件，需要安装、引用、注册，三个步骤后才能使用组件。easycom将其精简为一步。 只要组件安装在项目的components目录下，并符合components/组件名称/组件名称.vue目录结构。就可以不用引用、注册，直接在页面中使用。 
   "easycom": {
     "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"

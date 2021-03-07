@@ -22,7 +22,8 @@
                width="300rpx"
                height="300rpx"
                :src="playList[this.playing].img"
-               shape="circle"></u-image>
+               shape="circle"
+			   @click="toapp()"></u-image>
       <view class="hand_icon">
         <u-icon name="more-dot-fill"
                 color="#9baac2"
@@ -60,19 +61,15 @@
       </u-cell-group>
     </view>
 
-    <!-- 底部音频控制器 -->
-		<view class="wrap">
-			<u-slider v-model="progress" @start="progress_touch_start"
-			@end="progress_touch_end(progress)"></u-slider>
-		</view>
     <!-- 上方控制按钮  -->
   </view>
 </template>
 <script>
-import listData from '../../static/music.js'
+// import listData from '../../static/music.js'
 import { mapState } from 'vuex';
 var that = null;
 const innerAudioContext = uni.createInnerAudioContext();
+
 export default {
   data () {
     return {
@@ -93,8 +90,7 @@ export default {
 	  //当前音频
 	  duration:state => state.Music.duration,
 	  //音频最大长度
-	  // progress_max: state => state.Music.progress_max,
-	  //这是当前播放
+
     }),
 	//当前播放的百分比值  要利用set去双向绑定上传
 	progress:{
@@ -111,6 +107,7 @@ export default {
     that = this;
     innerAudioContext.autoplay = false;
     innerAudioContext.onTimeUpdate(() => {
+		// console.log("onTimeUpdate"+that.now+'  '+that.duration+'   '+that.progress)
       this.$store.commit("changenow",that.time_format(innerAudioContext.currentTime))
       this.$store.commit("changeduration",that.time_format(innerAudioContext.duration))
       this.$store.commit("changeprogress",parseInt(100 * (innerAudioContext.currentTime / innerAudioContext.duration)))
@@ -134,14 +131,21 @@ export default {
   },
   onShow () 
  {
-    innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
-    innerAudioContext.title = that.playList[that.playing].name;
+	 //下面这两行会导致从另一页面返回该页面时停止播放
+    // innerAudioContext.src = 'http://music.163.com/song/media/outer/url?id='+that.playList[that.playing].id+'.mp3';
+    // innerAudioContext.title = that.playList[that.playing].name;
     // 保持屏幕常亮
     uni.setKeepScreenOn({
       keepScreenOn: true
     });
   },
   methods: {
+	  // 进度条相关
+	  time_format (second) {
+	    let m = Math.floor((second / 60) % 60) < 10 ? '0' + Math.floor((second / 60) % 60) : Math.floor((second / 60) % 60);
+	    let s = Math.floor(second % 60) < 10 ? '0' + Math.floor(second % 60) : Math.floor(second % 60);
+	    return `${m}:${s}`;
+	  },
     //播放器控制相关
     last_song () {
       if (that.playing != 0) {
@@ -197,22 +201,7 @@ export default {
         })
       }
     },
-    // 进度条相关
-    progress_touch_start () {
-		// console.log("我开始滑动了")
-      innerAudioContext.pause();
-    },
-    progress_touch_end (percent) {
-	 // console.log("我结束滑动了"+percent)
-      let s = (percent/ 100) * innerAudioContext.duration;
-      //转换为十进制数
-      innerAudioContext.seek(parseInt(s));
-    },
-	time_format (second) {
-	  let m = Math.floor((second / 60) % 60) < 10 ? '0' + Math.floor((second / 60) % 60) : Math.floor((second / 60) % 60);
-	  let s = Math.floor(second % 60) < 10 ? '0' + Math.floor(second % 60) : Math.floor(second % 60);
-	  return `${m}:${s}`;
-	},
+    
     // 业务逻辑
     change_item (index) {
       // 当前点击的不是正在播放的
@@ -237,7 +226,14 @@ export default {
     collecte (index) {
       this.$store.commit('changestatu',index);
     },
-  }
+	toapp(){
+		console.log('我被调用了吗')
+		uni.navigateTo({
+			url:'/pages/musicapp/musicapp'
+		})
+	}
+  },
+  innerAudioContext
 };
 </script>
 
@@ -331,13 +327,5 @@ export default {
           transform: rotate(360deg);
       }
   }
-.wrap{
-	background-color: pink;
-	padding: 20rpx ;
-	width: 750rpx;
-	height: 150rpx;
-	position: fixed;
-    bottom: 0;
-}
 }
 </style>
